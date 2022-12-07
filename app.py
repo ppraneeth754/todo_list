@@ -26,4 +26,26 @@ def temp():
     return "hello"
 
 if __name__ == '__main__':
-    app.run(debug=True)            
+    app.run(debug=True)   
+
+def add_new_task():
+    title = request.form.get("Task_Info")
+    info = request.form.get("Task_Name")   
+
+    if not validate.validate_tasks(title):
+        return redirect('/')
+    if not validate.validate_tasks(info):
+        return redirect('/')
+    
+
+    # add task to user db
+    new_task = Task(user_id=session['user_id'],task_info=info.title(),task_title=title.title())
+    try:
+        db.session.add(new_task)
+        db.session.commit()
+        flash("Task Added SuccessFully")
+        return redirect('/')
+    except:
+        return error_500_server()
+
+         
