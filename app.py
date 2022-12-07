@@ -80,6 +80,48 @@ def edit():
             return redirect("/")
         except:
             return error_500_server
+@app.route("/delete",methods=["POST","GET"])
+@login_required
+def delete():
+    if request.method == "GET":
+        return render_template("delete.html",post_id=request.args.get('post_id'))
+    if request.method == "POST":
+        if request.form.get('delete') == "Yes":
+            try:
+                new_task = Task.query.filter_by(id=request.form.get('post_id'),user_id=session["user_id"]).first()
+                if new_task == None:
+                    return redirect("/")
+                db.session.delete(new_task)
+                db.session.commit()
+                flash("Task Deleted successfully")
+                return redirect("/")
+            except:
+                flash(message="Invalid Task",category="error")
+                return redirect("/")
+        else:
+            return redirect("/")
+    else:
+        return redirect("/")
+    
+
+@app.route("/done" ,methods=["POST"])
+@login_required
+def done():
+    if request.method == "POST":
+        task_id=request.form.get("post_id")
+
+        # query to data base for change task status to done
+        new_task = Task.query.filter_by(id=task_id ,user_id=session["user_id"]).first()
+        
+        if new_task == None:
+            return redirect("/")
+        # status code 1 equal to done
+        new_task.status = 1
+        print(new_task.status)
+        print(new_task)
+        db.session.commit()
+        flash("Task Done. You can See Your all Done Tasks In history Section")
+        return redirect("/")            
 
 if __name__ == '__main__':
     app.run(debug=True)           
