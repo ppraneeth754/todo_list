@@ -121,7 +121,14 @@ def done():
         print(new_task)
         db.session.commit()
         flash("Task Done. You can See Your all Done Tasks In history Section")
-        return redirect("/")            
+        return redirect("/")
+        
+@app.route("/history")
+@login_required
+def history():
+    # query to db to get all Done Task
+    old_Task = Task.query.filter_by(status=1,user_id=session["user_id"])
+    return render_template("history.html",user_db=old_Task)                    
 
 if __name__ == '__main__':
     app.run(debug=True)           
