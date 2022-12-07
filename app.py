@@ -25,9 +25,10 @@ def temp():
     # return render_template("base.html")   
     return "hello"
 
-if __name__ == '__main__':
-    app.run(debug=True)   
 
+
+@app.route("/add_new_task",methods=['POST'])
+@login_required
 def add_new_task():
     title = request.form.get("Task_Info")
     info = request.form.get("Task_Name")   
@@ -48,4 +49,37 @@ def add_new_task():
     except:
         return error_500_server()
 
-         
+
+@app.route("/edit",methods=["POST","GET"])
+@login_required
+def edit():
+    if request.method == "GET":
+        return render_template("edit.html",post_id=request.args.get("post_id"))
+    if request.method == "POST":
+        # edit section
+        title = request.form.get("Edit_Task_Name")
+        info = request.form.get("Edit_Task_Info")
+        task_id = request.form.get("post_id")
+
+        if not validate.validate_tasks(title):
+            return redirect('/')
+        if not validate.validate_tasks(info):
+            return redirect('/')
+        if not validate.validate_tasks(task_id):
+            return redirect('/')
+        
+        try:
+            new_task = Task.query.filter_by(id=task_id).first()
+            if not new_task:
+                return redirect("/")
+
+            new_task.task_title=title.title()
+            new_task.task_info=info.title()
+            db.session.commit()
+            flash("Task Edited Successfully")
+            return redirect("/")
+        except:
+            return error_500_server
+
+if __name__ == '__main__':
+    app.run(debug=True)           
